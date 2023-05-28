@@ -1,0 +1,14 @@
+{
+    "cSpell.words": [
+        "inversify",
+        "Inversify",
+        "Paginable"
+    ],
+    "i18next.i18nPaths": "d:/Documents/Projects/Work/Web/aprr/aprr_baite/app/public/assets/translations",
+    "editor.indentSize": "tabSize",
+    "editor.tabSize": 4,
+    "sonarlint.disableTelemetry": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll": true
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "unknown_error": "An unknown error has occurred. Please retry later.",
+    "error_401": "You must be authenticated to access this Resource or to carry out this operation.",
+    "error_403": "You are not allowed to access this Resource or to carry out this operation.",
+    "error_404": "The resource you are looking for is not found.",
+    "error_400": "An error occurred during the execution of your request.",
+    "error_503": "Service for the moment not available. Please retry later.",
+    "error_500": "An unknown server error has occurred.",
+    "error": "Error",
+    "login": "Log In",
+    "name": "Name",
+    "username": "Username",
+    "members": "Members",
+    "message": "Message",
+    "send": "Send"
+}
