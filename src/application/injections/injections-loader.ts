@@ -1,29 +1,37 @@
-import { SessionStorageService } from './../../domain/services/io/storage/SessionStorageService';
-import { Config } from 'application/Config';
-import { I18NextTranslatorService } from 'domain/services/translation/I18NextTranslatorService';
-import { NavigationController } from 'domain/controllers/navigation/NavigationController';
-import { AXIOS_INSTANCE_PROVIDER_TOKEN, AxiosHttpClient, type IAxiosInstanceProvider } from 'domain/services/io/http/AxiosHttpClient';
-import AxiosHttpErrorHandler, { AXIOS_HTTP_ERROR_HANDLER_TOKEN, type IAxiosHttpErrorHandler } from 'domain/services/io/http/AxiosHttpErrorHandler';
-import { CookieStorageService } from 'domain/services/io/storage/CookieStorageService';
-import { LocalStorageService } from 'domain/services/io/storage/LocalStorageService';
-import { WebSocketClientService } from 'domain/services/io/ws/WebSocketClientService';
-import { InjectionType, LoadableInjection, type LoadableInjections } from 'foundation/core/di/injections';
-import { type IHttpClient, HTTP_CLIENT_TOKEN } from 'foundation/core/system/io/http/IHttpClient';
-import { COOKIE_STORAGE_TOKEN, type ICookieStorage } from 'foundation/core/system/io/storage/ICookieStorage';
-import { LOCAL_STORAGE_TOKEN, type ILocalStorage } from 'foundation/core/system/io/storage/ILocalStorage';
-import { WEB_SOCKET_CLIENT_TOKEN, type IWebSocketClient } from 'foundation/core/system/io/ws/IWebSocketClient';
-import { type NavigationService, NAVIGATION_SERVICE_TOKEN } from 'foundation/core/system/navigation/NavigationService';
-import { TRANSLATOR_SERVICE_TOKEN, type TranslatorService } from 'foundation/core/system/translation/TranslatorService';
-import { type IReactRouterProvider, REACT_ROUTER_PROVIDER_TOKEN, createRouter } from 'presentation/providers/RouterProvider';
-import { DialogController } from 'domain/controllers/dialog/DialogController';
-import { DIALOG_SERVICE_TOKEN, type DialogService } from 'foundation/core/system/navigation/DialogService';
-import { AuthManager } from 'domain/managers/AuthManager';
-import { type IMessageEndpoint, MESSAGE_ENDPOINT_TOKEN, MessageEndpoint } from 'data/resources/remote/http/endpoints/MessageEndpoint';
-import { CHAT_GATEWAY_TOKEN, ChatGateway, type IChatGateway } from 'data/resources/remote/ws/gateways/ChatGateway';
-import { AUTH_USE_CASES_TOKEN, AuthUseCases, type IAuthUseCases } from 'domain/use_cases/AuthUseCases';
-import { type IMemberProvider, MEMBER_PROVIDER_TOKEN } from 'domain/use_cases/contracts/MemberProvider';
-import { CHAT_MEMBERS_USE_CASES_TOKEN, CHAT_USE_CASES_TOKEN, ChatUseCases, type IChatMemberUseCases, type IChatUseCases } from 'domain/use_cases/ChatUseCases';
-import { LocalChat, LocalMemberProvider } from './impl/locals';
+import { DialogController } from '@application/controllers/dialog/dialog.controller';
+import { NavigationController } from '@application/controllers/navigation/navigation.controller';
+import { AuthManager } from '@application/managers/auth.manager';
+import { DeviceInfoService } from '@application/services/installation/device-info.service';
+import { InstallationService } from '@application/services/installation/installation.service';
+import { AXIOS_INSTANCE_PROVIDER_TOKEN, AxiosHttpClient, type IAxiosInstanceProvider } from '@application/services/io/http/axios-http-client';
+import AxiosHttpErrorHandler, { AXIOS_HTTP_ERROR_HANDLER_TOKEN, type IAxiosHttpErrorHandler } from '@application/services/io/http/axios-http-error-handler';
+import { AppStoragesService } from '@application/services/io/storage/app-storages.services';
+import { CookieStorageService } from '@application/services/io/storage/cookie-storage.service';
+import { LocalStorageService } from '@application/services/io/storage/local-storage.service';
+import { WebSocketClientService } from '@application/services/io/ws/web-socket-client.service';
+import { I18NextTranslatorService } from '@application/services/translation/i18-next-translator.service';
+import { AUTH_ENDPOINT_TOKEN, AuthEndpoint, type IAuthEndpoint } from '@data/resources/remote/http/endpoints/auth.endpoint';
+import { type IInstallationEndpoint, INSTALLATION_ENDPOINT_TOKEN, InstallationEndpoint } from '@data/resources/remote/http/endpoints/installations.endpoint';
+import { UsersEndpoint } from '@data/resources/remote/http/endpoints/users.endpoint';
+import { ChatGateway } from '@data/resources/remote/ws/gateways/chat.gateway';
+import { LoginUseCase } from '@domain/use_cases/auth/login.use_case';
+import { LogoutUseCase } from '@domain/use_cases/auth/logout.use_case';
+import { AC_API_BASE_URL, Config } from '@foundation/core/config';
+import { InjectionType, LoadableInjection, type LoadableInjections } from '@foundation/core/di/injections';
+import { HTTP_CLIENT_TOKEN, type IHttpClient } from '@foundation/core/system/io/http/i-http-client';
+import { COOKIE_STORAGE_TOKEN, type ICookieStorage } from '@foundation/core/system/io/storage/i-cookie-storage';
+import { type ILocalStorage, LOCAL_STORAGE_TOKEN } from '@foundation/core/system/io/storage/i-local-storage';
+import { type IWebSocketClient, WEB_SOCKET_CLIENT_TOKEN } from '@foundation/core/system/io/ws/i-web-socket-client';
+import { DIALOG_SERVICE_TOKEN, type DialogService } from '@foundation/core/system/navigation/dialog-service';
+import { NAVIGATION_SERVICE_TOKEN, type NavigationService } from '@foundation/core/system/navigation/navigation-service';
+import { TRANSLATOR_SERVICE_TOKEN, type TranslatorService } from '@foundation/core/system/translation/translator-service';
+import { type IReactRouterProvider, REACT_ROUTER_PROVIDER_TOKEN, createRouter } from '@presentation/providers/router.provider';
+import { SessionStorageService } from '../services/io/storage/session-storage.service';
+import { RecoverUseCase } from '@domain/use_cases/auth/recover.use_case';
+import { ToastController } from '@application/controllers/toast/toast.controller';
+import { TOAST_SERVICE_TOKEN, type ToastService } from '@foundation/core/system/navigation/toast-service';
+import { InstitutionsEndpoint } from '@data/resources/remote/http/endpoints/institutions.endpoint';
+
 
 export function loadInjections(): LoadableInjections {
     return [
@@ -65,7 +73,13 @@ export function loadInjections(): LoadableInjections {
         }),
         new LoadableInjection<AxiosHttpClient>(AxiosHttpClient.token, {
             type: InjectionType.singleton,
-            getter: (resolver) => new AxiosHttpClient(resolver.resolve<IAxiosHttpErrorHandler>(AXIOS_HTTP_ERROR_HANDLER_TOKEN)),
+            getter: (resolver) => {
+                const apiBaseUrl = resolver.resolve<Config>(Config.token).get(AC_API_BASE_URL);
+                const errorHandler = resolver.resolve<IAxiosHttpErrorHandler>(AXIOS_HTTP_ERROR_HANDLER_TOKEN);
+                return new AxiosHttpClient(errorHandler, {
+                    baseURL: apiBaseUrl,
+                });
+            },
         }),
         new LoadableInjection<IAxiosInstanceProvider>(AXIOS_INSTANCE_PROVIDER_TOKEN, {
             type: InjectionType.reference,
@@ -107,77 +121,102 @@ export function loadInjections(): LoadableInjections {
             type: InjectionType.reference,
             value: DialogController.token
         }),
+        new LoadableInjection<ToastController>(ToastController.token, {
+            type: InjectionType.singleton,
+            getter: (_) => new ToastController(),
+        }),
+        new LoadableInjection<ToastService>(TOAST_SERVICE_TOKEN, {
+            type: InjectionType.reference,
+            value: ToastController.token
+        }),
         new LoadableInjection<AuthManager>(AuthManager.token, {
             type: InjectionType.singleton,
-            getter: (resolver) => new AuthManager(resolver.resolve<SessionStorageService>(SessionStorageService.token))
+            getter: (resolver) => new AuthManager({
+                storage: resolver.resolve<AppStoragesService>(AppStoragesService.token),
+                axiosInstanceProvider: resolver.resolve<IAxiosInstanceProvider>(AXIOS_INSTANCE_PROVIDER_TOKEN)
+            })
         }),
-        new LoadableInjection<MessageEndpoint>(MessageEndpoint.token, {
-            type: InjectionType.factory,
-            getter: (resolver) => new MessageEndpoint(resolver.resolve<IHttpClient>(HTTP_CLIENT_TOKEN))
-        }),
-        // new LoadableInjection<IMessageEndpoint>(MESSAGE_ENDPOINT_TOKEN, {
-        //     type: InjectionType.reference,
-        //     value: MessageEndpoint.token
-        // }),
         new LoadableInjection<ChatGateway>(ChatGateway.token, {
             type: InjectionType.factory,
             getter: (resolver) => new ChatGateway(resolver.resolve<IWebSocketClient>(WEB_SOCKET_CLIENT_TOKEN))
         }),
-        // new LoadableInjection<IChatGateway>(CHAT_GATEWAY_TOKEN, {
-        //     type: InjectionType.reference,
-        //     value: ChatGateway.token
-        // }),
-        new LoadableInjection<AuthUseCases>(AuthUseCases.token, {
+        new LoadableInjection<UsersEndpoint>(UsersEndpoint.token, {
             type: InjectionType.factory,
-            getter: (resolver) => new AuthUseCases(
-                resolver.resolve<IMemberProvider>(MEMBER_PROVIDER_TOKEN),
-                resolver.resolve<AuthManager>(AuthManager.token),
-                resolver.resolve<NavigationService>(NAVIGATION_SERVICE_TOKEN),
-                resolver.resolve<DialogService>(DIALOG_SERVICE_TOKEN),
-                resolver.resolve<TranslatorService>(TRANSLATOR_SERVICE_TOKEN),
-            )
+            getter: (resolver) => new UsersEndpoint(resolver.resolve<IHttpClient>(HTTP_CLIENT_TOKEN))
         }),
-        new LoadableInjection<IAuthUseCases>(AUTH_USE_CASES_TOKEN, {
-            type: InjectionType.reference,
-            value: AuthUseCases.token
-        }),
-        new LoadableInjection<ChatUseCases>(ChatUseCases.token, {
+        new LoadableInjection<InstitutionsEndpoint>(InstitutionsEndpoint.token, {
             type: InjectionType.factory,
-            getter: (resolver) => new ChatUseCases(
-                resolver.resolve<IChatGateway>(CHAT_GATEWAY_TOKEN),
-                resolver.resolve<IMemberProvider>(MEMBER_PROVIDER_TOKEN),
-                resolver.resolve<IMessageEndpoint>(MESSAGE_ENDPOINT_TOKEN),
+            getter: (resolver) => new InstitutionsEndpoint(resolver.resolve<IHttpClient>(HTTP_CLIENT_TOKEN))
+        }),
+        new LoadableInjection<IAuthEndpoint>(AUTH_ENDPOINT_TOKEN, {
+            type: InjectionType.factory,
+            getter: (resolver) => new AuthEndpoint(resolver.resolve<IHttpClient>(HTTP_CLIENT_TOKEN))
+        }),
+        new LoadableInjection<AuthEndpoint>(AuthEndpoint.token, {
+            type: InjectionType.reference,
+            value: AUTH_ENDPOINT_TOKEN
+        }),
+        new LoadableInjection<RecoverUseCase>(RecoverUseCase.token, {
+            type: InjectionType.factory,
+            getter: (resolver) => new RecoverUseCase(
+                {
+                    authEndpoint: resolver.resolve<AuthEndpoint>(AuthEndpoint.token),
+                    navigation: resolver.resolve<NavigationService>(NAVIGATION_SERVICE_TOKEN),
+                    dialogService: resolver.resolve<DialogService>(DIALOG_SERVICE_TOKEN),
+                    translatorService: resolver.resolve<TranslatorService>(TRANSLATOR_SERVICE_TOKEN),
+                }
             )
         }),
-        new LoadableInjection<IChatUseCases>(CHAT_USE_CASES_TOKEN, {
-            type: InjectionType.reference,
-            value: ChatUseCases.token
-        }),
-        new LoadableInjection<IChatMemberUseCases>(CHAT_MEMBERS_USE_CASES_TOKEN, {
-            type: InjectionType.reference,
-            value: ChatUseCases.token
-        }),
-        new LoadableInjection<LocalMemberProvider>(LocalMemberProvider.token, {
-            type: InjectionType.singleton,
-            getter: (resolver) => new LocalMemberProvider()
-        }),
-        new LoadableInjection<IMemberProvider>(MEMBER_PROVIDER_TOKEN, {
-            type: InjectionType.reference,
-            value: LocalMemberProvider.token
-        }),
-        new LoadableInjection<LocalChat>(LocalChat.token, {
-            type: InjectionType.singleton,
-            getter: (resolver) => new LocalChat(
-                resolver.resolve<AuthManager>(AuthManager.token),
+        new LoadableInjection<LoginUseCase>(LoginUseCase.token, {
+            type: InjectionType.factory,
+            getter: (resolver) => new LoginUseCase(
+                {
+                    authEndpoint: resolver.resolve<AuthEndpoint>(AuthEndpoint.token),
+                    authManager: resolver.resolve<AuthManager>(AuthManager.token),
+                    navigation: resolver.resolve<NavigationService>(NAVIGATION_SERVICE_TOKEN),
+                    usersEndpoint: resolver.resolve<UsersEndpoint>(UsersEndpoint.token),
+                }
             )
-        }, [AuthManager.token]),
-        new LoadableInjection<IChatGateway>(CHAT_GATEWAY_TOKEN, {
-            type: InjectionType.reference,
-            value: LocalChat.token
         }),
-        new LoadableInjection<IMessageEndpoint>(MESSAGE_ENDPOINT_TOKEN, {
-            type: InjectionType.reference,
-            value: LocalChat.token
+        new LoadableInjection<LogoutUseCase>(LogoutUseCase.token, {
+            type: InjectionType.factory,
+            getter: (resolver) => new LogoutUseCase(
+                {
+                    authEndpoint: resolver.resolve<AuthEndpoint>(AuthEndpoint.token),
+                    authManager: resolver.resolve<AuthManager>(AuthManager.token),
+                    navigation: resolver.resolve<NavigationService>(NAVIGATION_SERVICE_TOKEN),
+                    dialog: resolver.resolve<DialogService>(DIALOG_SERVICE_TOKEN),
+                    translator: resolver.resolve<TranslatorService>(TRANSLATOR_SERVICE_TOKEN),
+                }
+            )
+        }),
+        new LoadableInjection<AppStoragesService>(AppStoragesService.token, {
+            type: InjectionType.singleton,
+            getter: (resolver) => new AppStoragesService(
+                resolver.resolve<ICookieStorage>(CookieStorageService.token),
+                resolver.resolve<ILocalStorage>(LocalStorageService.token),
+                resolver.resolve<ILocalStorage>(SessionStorageService.token),
+            )
+        }),
+        new LoadableInjection<IInstallationEndpoint>(INSTALLATION_ENDPOINT_TOKEN, {
+            type: InjectionType.factory,
+            getter: (resolver) => new InstallationEndpoint(resolver.resolve<IHttpClient>(HTTP_CLIENT_TOKEN))
+        }),
+        new LoadableInjection<DeviceInfoService>(DeviceInfoService.token, {
+            type: InjectionType.singleton,
+            getter: (_) => new DeviceInfoService()
+        }),
+        new LoadableInjection<InstallationService>(InstallationService.token, {
+            type: InjectionType.singleton,
+            getter: (resolver) => new InstallationService(
+                {
+                    axiosInstanceProvider: resolver.resolve<IAxiosInstanceProvider>(AXIOS_INSTANCE_PROVIDER_TOKEN),
+                    installationEndpoint: resolver.resolve<IInstallationEndpoint>(INSTALLATION_ENDPOINT_TOKEN),
+                    storages: resolver.resolve<AppStoragesService>(AppStoragesService.token),
+                    config: resolver.resolve<Config>(Config.token),
+                    deviceInfo: resolver.resolve<DeviceInfoService>(DeviceInfoService.token)
+                }
+            )
         }),
     ];
 }

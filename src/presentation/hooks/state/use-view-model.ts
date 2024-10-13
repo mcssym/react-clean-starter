@@ -1,6 +1,6 @@
 
-import { type StateNotifier, type StateNotifierStateType } from 'foundation/core/system/state/StateNotifier';
-import { type ViewModel } from 'foundation/core/system/state/ViewModel';
+import type { StateNotifier, StateNotifierStateType } from '@foundation/core/system/state/state-notifier';
+import type { ViewModel } from '@foundation/core/system/state/view-model';
 import { useSN, useSNSelector, useSNState } from './use-state-notifier';
 
 export const useVMState = <T extends ViewModel<StateNotifierStateType<T>>>(

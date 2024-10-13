@@ -40,9 +40,54 @@
         "typeRoots": [
             "node_modules/@types",
             "typings"
-        ]
+        ],
+        "paths": {
+            "@/*": [
+                "src/*"
+            ],
+            "@presentation/*": [
+                "presentation/*"
+            ],
+            "@ui/*": [
+                "presentation/ui/*"
+            ],
+            "@domain/*": [
+                "domain/*"
+            ],
+            "@data/*": [
+                "data/*"
+            ],
+            "@endpoints/*": [
+                "data/resources/remote/http/endpoints/*"
+            ],
+            "@gateways/*": [
+                "data/resources/remote/ws/gateways/*"
+            ],
+            "@application/*": [
+                "application/*"
+            ],
+            "@services/*": [
+                "application/services/*"
+            ],
+            "@controllers/*": [
+                "application/controllers/*"
+            ],
+            "@managers/*": [
+                "application/managers/*"
+            ],
+            "@use_cases/*": [
+                "domain/use_cases/*"
+            ],
+            "@foundation/*": [
+                "foundation/*"
+            ],
+        }
     },
     "include": [
-        "src"
+        "src",
+        "bin",
+        "eslint.config.js",
+        "craco.config.js",
+        "jest.config.js",
     ]
 }

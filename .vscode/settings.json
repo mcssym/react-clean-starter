@@ -1,14 +1,29 @@
 {
     "cSpell.words": [
+        "craco",
         "inversify",
         "Inversify",
-        "Paginable"
+        "Paginable",
+        "tailwindcss"
     ],
-    "i18next.i18nPaths": "d:/Documents/Projects/Work/Web/aprr/aprr_baite/app/public/assets/translations",
+    "cSpell.ignorePaths": [
+        "tsconfig.json",
+        "package.json",
+        "package-lock.json",
+        "node_modules",
+        "vscode-extension",
+        ".git/objects",
+        ".vscode",
+        ".vscode-insiders",
+        "eslint.config.js",
+        "dist"
+    ],
+    "cSpell.workspaceRootPath": "${workspaceFolder}",
+    "i18next.i18nPaths": "${workspaceFolder}/public/assets/translations",
     "editor.indentSize": "tabSize",
     "editor.tabSize": 4,
     "sonarlint.disableTelemetry": true,
     "editor.codeActionsOnSave": {
-        "source.fixAll": true
+        "source.fixAll": "explicit"
     }
 }

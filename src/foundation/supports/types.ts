@@ -21,6 +21,12 @@ export type Constructor<T> = new (...args: any[]) => T;
 // Nullable type
 export type Nullable<T> = T | null;
 
+// Nullable type
+export type NullableUnless<T, R> = R extends undefined ? null : T;
+
+// Nullable type
+export type TypeOr<T, R> = T extends R ? R : T extends undefined ? R : T;
+
 // Callback
 export type Callback<T> = () => T;
 

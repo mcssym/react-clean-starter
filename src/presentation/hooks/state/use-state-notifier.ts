@@ -1,5 +1,5 @@
-import { type StateNotifier, type StateNotifierStateType } from 'foundation/core/system/state/StateNotifier';
-import { StateNotifiersContext, StateNotifiersHandlerContext, type StateNotifiersHandler } from 'presentation/providers/state/StateNotifierProvider';
+import type { StateNotifier, StateNotifierStateType } from '@foundation/core/system/state/state-notifier';
+import { StateNotifiersContext, StateNotifiersHandlerContext, type StateNotifiersHandler } from '@presentation/providers/state/state-notifier.provider';
 import { useContext } from 'react';
 import { map } from 'rxjs';
 import { useObservable } from '../use-observable';
