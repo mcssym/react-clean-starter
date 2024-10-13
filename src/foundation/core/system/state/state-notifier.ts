@@ -1,8 +1,16 @@
 import type { PartialPropertiesOf } from '@foundation/supports/types';
 import { type Observable, Subject } from 'rxjs';
 
+/**
+ * The function that creates the state
+ */
 export type StateCreator<T> = (properties: PartialPropertiesOf<T>) => T;
 
+/**
+ * StateNotifier is a class that allows you to manage the state of a component.
+ * 
+ * @template T The type of the state.
+ */
 export class StateNotifier<T = unknown> {
     readonly #stateCreator: StateCreator<T>;
     #state: T;
@@ -26,6 +34,11 @@ export class StateNotifier<T = unknown> {
         return this.#subject.asObservable();
     }
 
+    /**
+     * Copy the current state with the given data.
+     * 
+     * @param data The data to copy.
+     */
     copyState(data: PartialPropertiesOf<T>): void {
         this.setState(this.#stateCreator({
             ...this.#state,
@@ -33,6 +46,13 @@ export class StateNotifier<T = unknown> {
         }));
     }
 
+    /**
+     * Set the new state.
+     * 
+     * This will replace the current state with the new state. 
+     * If you want to update the state, use `copyState` instead.
+     * @param state The new state.
+     */
     setState(state: T): void {
         this.#state = state;
         this.#subject.next(state);

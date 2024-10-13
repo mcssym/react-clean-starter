@@ -18,25 +18,43 @@ interface BaseDialogData {
     type: DialogType;
 }
 
+/**
+ * Types representing alert dialog data.
+ */
 export interface AlertDialogData extends BaseDialogData, AlertData {
     type: DialogType.alert;
     close: () => void;
 }
 
+/**
+ * Types representing confirm of dialog data.
+ */
 export interface ConfirmDialogData extends BaseDialogData, ConfirmData {
     type: DialogType.confirm;
     close: (result?: boolean) => void;
 }
 
+/**
+ * Types representing prompt dialog data.
+ */
 export interface PromptDialogData extends BaseDialogData, PromptData {
     type: DialogType.prompt;
     close: (result?: string) => void;
 }
 
+/**
+ * Types representing different kinds of dialog data.
+ */
 export type DialogData = AlertDialogData | ConfirmDialogData | PromptDialogData;
 
+/**
+ * Type representing the state of dialogs.
+ */
 export type DialogState = Record<string, DialogData>;
 
+/**
+ * Class responsible for notifying state changes in dialogs.
+ */
 export class DialogStateNotifier extends StateNotifier<DialogState> {
     static readonly token = Symbol('DialogStateNotifier');
 
@@ -45,7 +63,14 @@ export class DialogStateNotifier extends StateNotifier<DialogState> {
     }
 }
 
+/**
+ * Symbol used to nominally type the DialogController.
+ */
 const NOMINAL = Symbol('DialogController');
+
+/**
+ * Class responsible for controlling dialog interactions.
+ */
 export class DialogController extends DialogService {
     [NOMINAL]: symbol = NOMINAL;
 
@@ -58,10 +83,18 @@ export class DialogController extends DialogService {
         this.#stateNotifier = new DialogStateNotifier();
     }
 
+    /**
+     * Getter for the state notifier.
+     */
     get notifier(): DialogStateNotifier {
         return this.#stateNotifier;
     }
 
+    /**
+     * Displays an alert dialog.
+     * @param data - The data for the alert dialog.
+     * @returns A promise that resolves when the dialog is closed.
+     */
     override async alert(data: AlertData): Promise<void> {
         await new Promise<void>((resolve, reject) => {
             if (!this.notifier.hasListeners) {
@@ -83,6 +116,11 @@ export class DialogController extends DialogService {
         });
     }
 
+    /**
+     * Displays a confirm dialog.
+     * @param data - The data for the confirm dialog.
+     * @returns A promise that resolves to a boolean indicating the user's choice.
+     */
     override async confirm(data: ConfirmData): Promise<Nullable<boolean>> {
         return await new Promise<Nullable<boolean>>((resolve, reject) => {
             if (!this.notifier.hasListeners) {
@@ -104,6 +142,11 @@ export class DialogController extends DialogService {
         });
     }
 
+    /**
+     * Displays a prompt dialog.
+     * @param data - The data for the prompt dialog.
+     * @returns A promise that resolves to the user's input or null.
+     */
     override async prompt(data: PromptData): Promise<Nullable<string>> {
         return await new Promise<Nullable<string>>((resolve, reject) => {
             if (!this.notifier.hasListeners) {
@@ -125,6 +168,10 @@ export class DialogController extends DialogService {
         });
     }
 
+    /**
+     * Removes a dialog from the state.
+     * @param key - The key of the dialog to remove.
+     */
     #removeDialog(key: string): void {
         this.#stateNotifier.setState(removeKey(key, this.#stateNotifier.state));
     }

@@ -9,6 +9,9 @@ const NOMINAL = Symbol('InstallationService');
 
 const installationKey = "X-APP-INSTALLATION-ID";
 
+/**
+ * Service responsible for managing the installation.
+ */
 export class InstallationService {
     [NOMINAL]: symbol = NOMINAL;
     static readonly token: symbol = Symbol('InstallationService');
@@ -41,6 +44,13 @@ export class InstallationService {
         this.deviceInfo = deviceInfo;
     }
 
+    /**
+     * Initializes the installation service.
+     * 
+     * @returns {Promise<void>} A promise that resolves when the service is initialized.
+     * @async
+     * @public
+     */
     async initialize(): Promise<void> {
         try {
             this.#installationUuid = await this.storages.get(installationKey);

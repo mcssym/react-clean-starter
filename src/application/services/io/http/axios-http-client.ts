@@ -28,10 +28,21 @@ export class AxiosHttpClient implements IHttpClient, IAxiosInstanceProvider {
         this.#errorHandler = errorHandler;
     }
 
+    /**
+     * Returns the Axios instance used by the HTTP client
+     * @returns The Axios instance used by the HTTP client
+     * @public
+     * @readonly
+     */
     get axios(): Axios {
         return this.#axios
     }
 
+    /**
+     * @inheritDoc
+     * @async
+     * @public
+     */
     async delete<R>(path: string, params?: HttpClientQueryRequestParams<R>): Promise<HttpClientResponse<R>> {
         try {
             const response = await this.#axios.delete<R, AxiosResponse<R>>(path, {
@@ -58,6 +69,11 @@ export class AxiosHttpClient implements IHttpClient, IAxiosInstanceProvider {
         }
     }
 
+    /**
+     * @inheritDoc
+     * @async
+     * @public
+     */
     async head<R>(path: string, params?: HttpClientQueryRequestParams<R>): Promise<HttpClientResponse<R>> {
         try {
             const response = await this.#axios.head<R, AxiosResponse<R>>(path, {
@@ -84,6 +100,11 @@ export class AxiosHttpClient implements IHttpClient, IAxiosInstanceProvider {
         }
     }
 
+    /**
+     * @inheritDoc
+     * @async
+     * @public
+     */
     async get<R>(path: string, params?: HttpClientQueryRequestParams<R>): Promise<HttpClientResponse<R>> {
         try {
             const response = await this.#axios.get<R, AxiosResponse<R>>(path, {
@@ -110,6 +131,11 @@ export class AxiosHttpClient implements IHttpClient, IAxiosInstanceProvider {
         }
     }
 
+    /**
+     * @inheritDoc
+     * @async
+     * @public
+     */
     async patch<R>(path: string, params: HttpClientDataRequestParams<R>): Promise<HttpClientResponse<R>> {
         try {
             const response = await this.#axios.patch<R, AxiosResponse<R>, HttpClientDataRequestData>(path, params.data, {
@@ -136,6 +162,11 @@ export class AxiosHttpClient implements IHttpClient, IAxiosInstanceProvider {
         }
     }
 
+    /**
+     * @inheritDoc
+     * @async
+     * @public
+     */
     async post<R>(path: string, params: HttpClientDataRequestParams<R>): Promise<HttpClientResponse<R>> {
         try {
             const response = await this.#axios.post<R, AxiosResponse<R>, HttpClientDataRequestData>(path, params.data, {
@@ -162,6 +193,11 @@ export class AxiosHttpClient implements IHttpClient, IAxiosInstanceProvider {
         }
     }
 
+    /**
+     * @inheritDoc
+     * @async
+     * @public
+     */
     async put<R>(path: string, params: HttpClientDataRequestParams<R>): Promise<HttpClientResponse<R>> {
         try {
             const response = await this.#axios.put<R, AxiosResponse<R>, HttpClientDataRequestData>(path, params.data, {

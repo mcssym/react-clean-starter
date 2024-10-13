@@ -4,10 +4,25 @@ import type { TranslatorService } from '@foundation/core/system/translation/tran
 import { TranslationKeys } from '@foundation/core/system/translation/translation-keys';
 
 export const AXIOS_HTTP_ERROR_HANDLER_TOKEN = Symbol('AXIOS_HTTP_ERROR_HANDLER_TOKEN')
+
+/**
+ * Interface representing an Axios HTTP error handler.
+ * @public
+ * @interface
+ */
 export interface IAxiosHttpErrorHandler {
+    /**
+     * Handles an Axios HTTP error.
+     * @param error - The Axios error to handle.
+     * @returns The HttpException representing the Axios error.
+     */
     handle: (error: AxiosError) => HttpException;
 }
 
+/**
+ * Class responsible for handling Axios HTTP errors.
+ * @public
+ */
 export default class AxiosHttpErrorHandler implements IAxiosHttpErrorHandler {
     readonly #translator: TranslatorService;
 
@@ -15,6 +30,10 @@ export default class AxiosHttpErrorHandler implements IAxiosHttpErrorHandler {
         this.#translator = translator;
     }
 
+    /**
+     * @inheritDoc
+     * @public
+     */
     handle(error: AxiosError<unknown, any>): HttpException {
         let translatedErrorKey: string | null = null;
         switch (error.response?.status) {

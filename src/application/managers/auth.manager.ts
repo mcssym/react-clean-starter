@@ -4,10 +4,16 @@ import { UserModel } from '@data/resources/remote/http/models/user.model';
 import { StateNotifier } from '@foundation/core/system/state/state-notifier';
 import type { Nullable } from '@foundation/supports/types';
 
+/**
+ * Interface representing the session data.
+ */
 export interface AuthSession {
     token: string;
 }
 
+/**
+ * Class representing the state of authentication.
+ */
 export class AuthState {
     constructor(public readonly session?: AuthSession, public user?: UserModel) {
     }
@@ -17,6 +23,10 @@ const userKey = '__u';
 const sessionKey = '__s';
 
 const NOMINAL = Symbol('AuthManager');
+
+/**
+ * Class responsible for managing authentication state.
+ */
 export class AuthManager extends StateNotifier<AuthState> {
     [NOMINAL]: symbol = NOMINAL;
     static readonly token: symbol = Symbol('AuthManager');
@@ -34,6 +44,9 @@ export class AuthManager extends StateNotifier<AuthState> {
         return this.state.session != null;
     }
 
+    /**
+     * Initializes the authentication manager.
+     */
     async initialize(): Promise<void> {
         this.#setAxiosInterceptor();
         const token = await this.#storage.get(sessionKey);
@@ -52,6 +65,9 @@ export class AuthManager extends StateNotifier<AuthState> {
         }
     }
 
+    /**
+     * Resets the authentication state.
+     */
     reset(): void {
         this.copyState({
             user: undefined,
@@ -61,6 +77,11 @@ export class AuthManager extends StateNotifier<AuthState> {
         this.#storage.remove(sessionKey).catch(() => { });
     }
 
+    /**
+     * Sets the user.
+     * 
+     * @param user - The user to set.
+     */
     setUser(user: UserModel): void {
         this.copyState({
             user
@@ -68,6 +89,11 @@ export class AuthManager extends StateNotifier<AuthState> {
         this.#saveInSession();
     }
 
+    /**
+     * Sets the session.
+     * 
+     * @param session - The session to set.
+     */
     setSession(session: AuthSession): void {
         this.copyState({
             session
